@@ -1,0 +1,39 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+    <h1 class="mb-3">Posts by {{ view.kwargs.username }} ({{ page_obj.paginator.count }}) </h1> <!-- DEFAULT get_object or 404 representation of data in template -->
+    <!-- paginator count returns total no of objects or list data for that particular page_obj or user -->
+  {% for post in posts %}
+  <article class="media content-section">
+    <img src="{{ post.author.profile.image.url }}" class="rounded-circle article-img">
+      <div class="media-body">
+        <div class="article-metadata">
+          <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a> <!-- sending username data to get object or 404 and is received by the view.kwargs -->
+          <small class="text-muted">{{ post.date_posted|date:"F d, Y" }}</small> <!-- look at the django docs for filtering and formatting -->
+        </div>
+        <h2><a class="article-title" href="{% url 'post-detail' post.id  %}">{{ post.title }}</a></h2>
+        <p class="article-content">{{ post.content }}</p>
+      </div>
+  </article>
+  {% endfor %}
+  {% if is_paginated %}
+    
+    {% if page_obj.has_previous %} <!-- page_obj is the paginated object created automatically -->
+      <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a> <!-- look up docs for pagination -->
+    {% endif %}
+  
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %} <!-- page_obj is the paginated object created automatically -->
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a> <!-- look up docs for pagination -->
+    {% endif %}
+
+  {% endif %}    
+{% endblock content %}
